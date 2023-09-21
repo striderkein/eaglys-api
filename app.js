@@ -33,7 +33,9 @@ app.post('/modify-ast', (req, res) => {
   const ast = parser.astify(sqlQuery);
 
   // カラム名のハッシュ化とマップの作成
-  const columnMap = hashColumnNames(ast);
+  const hashedResult = hashColumnNames(ast);
+  const columnMap = hashedResult.columnMap;
+  const node = hashedResult.node;
 
   console.log(`columnMap: ${JSON.stringify(columnMap)}`)
   // SQLiteデータベースにマップを保存
@@ -47,8 +49,8 @@ app.post('/modify-ast', (req, res) => {
     }
 
     stmt.finalize();
-    res.json(columnMap);
   });
+  res.json(node);
 });
 
 // サーバーの起動

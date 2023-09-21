@@ -30,7 +30,7 @@ const hashColumnNames = (node) => {
   }
   recursiveHash(node);
   console.log(`columnMap in util: ${JSON.stringify(columnMap)}, length: ${columnMap.length}`)
-  return columnMap;
+  return { node, columnMap };
 }
 
 module.exports = { hashColumnNames };
