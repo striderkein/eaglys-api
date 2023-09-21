@@ -3,13 +3,26 @@
 ## setting
 
 ```shell
+cp .env.sample .env
+# Edit the environment variable 'EAGLYS_API_PORT' to match your own environment.
 npm i
 ```
 
 ## How to start
 
+- local
+- Docker
+
+### local
+
 ```shell
 npm start
+```
+
+### Docker
+
+```shell
+docker-compose up
 ```
 
 ## endpoints
