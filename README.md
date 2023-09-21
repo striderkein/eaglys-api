@@ -285,3 +285,100 @@ response
     "query": "SELECT `NAME` FROM `USERS` WHERE `USER_ID` = 1 AND `AGE` = 10"
 }
 ```
+
+## How to deploy to ECS
+
+### premise
+
+The following items are installed:
+
+- aws-cli
+- Docker
+
+### setting environment variable
+
+```shell
+REPOSITORY_NAME=eaglys-api
+AWS_REGION=<YOUR_REGION>
+```
+
+### create Docker image
+
+```shell
+docker build -t eaglys-api .
+```
+
+### push Docker image to ECR
+
+create repository
+
+```shell
+aws ecr create-repository --repository-name eaglys-api --region ${AWS_REGION}
+```
+
+response(sample)
+
+```json
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:ap-northeast-1:xxxxxxxxxxxx:repository/eaglys-api",
+        "registryId": "xxxxxxxxxxxx",
+        "repositoryName": "eaglys-api",
+        "repositoryUri": "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/eaglys-api",
+        "createdAt": "2023-09-21T15:33:31+09:00",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}
+```
+
+setting `regitryId` as environment variable
+
+```shell
+REGISTRY_ID=xxxxxxxxxxxx
+```
+
+Docker login and access to ECR repository
+
+```shell
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REGISTRY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+```
+
+response(sample)
+
+```json
+Login Succeeded
+
+Logging in with your password grants your terminal complete access to your account. 
+For better security, log in with a limited-privilege personal access token. Learn more at https://docs.docker.com/go/access-tokens/
+```
+
+attach tag to image, and push to ECR
+
+```shell
+docker tag eaglys-api:latest ${REGISTRY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/eaglys-api:latest
+docker push ${REGISTRY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/eaglys-api:latest
+```
+
+confirm push result
+
+```shell
+aws ecr list-images --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}
+```
+
+```json
+{
+    "imageIds": [
+        {
+            "imageDigest": "sha256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "imageTag": "latest"
+        }
+    ]
+}
+```
+
