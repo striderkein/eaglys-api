@@ -27,9 +27,9 @@ docker-compose up
 
 ## endpoints
 
-* `/parse-sql`
-* `/modify-ast`
-* `/rebuild-sql`
+- `/parse-sql`
+- `/modify-ast`
+- `/rebuild-sql`
 
 ### `/parse-sql`
 
