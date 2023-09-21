@@ -53,6 +53,49 @@ app.post('/modify-ast', (req, res) => {
   res.json(node);
 });
 
+// APIエンドポイント3: 変更されたASTからSQLを再構築
+app.post('/rebuild-sql', (req, res) => {
+  try {
+    const ast = req.body.ast;
+
+    // SQLiteデータベースからカラムマップを取得
+    const columnMap = new Map();
+    db.all("SELECT original, hashed FROM column_map", [], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      rows.forEach((row) => {
+        columnMap.set(row.hashed, row.original);
+      });
+
+      // AST内のハッシュ化されたカラム名を元のカラム名に変換
+      const revertColumnNames = (node) => {
+        for (const key in node) {
+          if (node[key] && typeof node[key] === 'object') {
+            revertColumnNames(node[key]);
+          } else if (key === 'column' && typeof node[key] === 'string') {
+            const originalColumnName = columnMap.get(node[key]);
+            if (originalColumnName) {
+              node[key] = originalColumnName;
+            }
+          }
+        }
+      };
+
+      revertColumnNames(ast);
+
+      // ASTからSQLクエリを再構築
+      const parser = new Parser();
+      const rebuiltSql = parser.sqlify(ast);
+
+      res.json({ query: rebuiltSql });
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // サーバーの起動
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

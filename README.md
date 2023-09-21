@@ -16,6 +16,7 @@ npm start
 
 * `/parse-sql`
 * `/modify-ast`
+* `/rebuild-sql`
 
 ### `/parse-sql`
 
@@ -116,4 +117,89 @@ response
     "AGE": "ab864bbd"
   }
 ]
+```
+
+### `/rebuild-sql`
+
+request
+
+```shell
+curl -H 'Content-Type: application/json' -d @ast.json http://localhost:3000/rebuild-sql
+```
+
+`ast.json`
+
+```json
+{
+    "ast": {
+        "with": null,
+        "type": "select",
+        "options": null,
+        "distinct": null,
+        "columns": [
+            {
+                "expr": {
+                    "type": "column_ref",
+                    "table": null,
+                    "column": "eaa58932"
+                },
+                "as": null
+            }
+        ],
+        "into": {
+            "position": null
+        },
+        "from": [
+            {
+                "db": null,
+                "table": "USERS",
+                "as": null
+            }
+        ],
+        "where": {
+            "type": "binary_expr",
+            "operator": "AND",
+            "left": {
+                "type": "binary_expr",
+                "operator": "=",
+                "left": {
+                    "type": "column_ref",
+                    "table": null,
+                    "column": "e5bb97d1"
+                },
+                "right": {
+                    "type": "number",
+                    "value": 1
+                }
+            },
+            "right": {
+                "type": "binary_expr",
+                "operator": "=",
+                "left": {
+                    "type": "column_ref",
+                    "table": null,
+                    "column": "ab864bbd"
+                },
+                "right": {
+                    "type": "number",
+                    "value": 10
+                }
+            }
+        },
+        "groupby": null,
+        "having": null,
+        "orderby": null,
+        "limit": null,
+        "locking_read": null,
+        "window": null
+    }
+}
+```
+
+response
+
+```json
+{
+    "query": "SELECT `NAME` FROM `USERS` WHERE `USER_ID` = 1 AND `AGE` = 10"
+}
 ```
