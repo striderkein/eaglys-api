@@ -50,7 +50,7 @@ app.post('/modify-ast', (req, res) => {
 
     stmt.finalize();
   });
-  res.json(node);
+  res.json({ ast: node });
 });
 
 // APIエンドポイント3: 変更されたASTからSQLを再構築
