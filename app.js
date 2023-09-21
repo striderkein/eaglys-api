@@ -28,9 +28,7 @@ app.post('/parse-sql', (req, res) => {
 
 // APIエンドポイント2: カラム名をハッシュ化し、マップを保存
 app.post('/modify-ast', (req, res) => {
-  const parser = new Parser();
-  const sqlQuery = req.body.sql;
-  const ast = parser.astify(sqlQuery);
+  const ast = req.body.ast;
 
   // カラム名のハッシュ化とマップの作成
   const hashedResult = hashColumnNames(ast);
