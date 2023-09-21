@@ -1,5 +1,11 @@
 # eaglys-api
 
+## setting
+
+```shell
+npm i
+```
+
 ## How to start
 
 ```shell
