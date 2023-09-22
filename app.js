@@ -69,22 +69,6 @@ app.post('/rebuild-sql', (req, res) => {
         columnMap.set(row.hashed, row.original);
       });
 
-      // AST内のハッシュ化されたカラム名を元のカラム名に変換
-      const revertColumnNames = (node) => {
-        for (const key in node) {
-          if (node[key] && typeof node[key] === 'object') {
-            revertColumnNames(node[key]);
-          } else if (key === 'column' && typeof node[key] === 'string') {
-            const originalColumnName = columnMap.get(node[key]);
-            if (originalColumnName) {
-              node[key] = originalColumnName;
-            }
-          }
-        }
-      };
-
-      revertColumnNames(ast);
-
       // ASTからSQLクエリを再構築
       const parser = new Parser();
       const rebuiltSql = parser.sqlify(ast);
