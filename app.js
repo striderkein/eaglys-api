@@ -102,7 +102,11 @@ app.post('/rebuild-sql', (req, res) => {
   }
 });
 
+module.exports = app;
+
 // サーバーの起動
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
