@@ -22,10 +22,15 @@ app.use(express.json());
 
 // APIエンドポイント1: SQLをASTに変換する
 app.post('/parse-sql', (req, res) => {
-  const parser = new Parser();
-  const sqlQuery = req.body.sql;
-  const ast = parser.astify(sqlQuery);
-  res.status(201).json({ ast });
+  try {
+    const parser = new Parser();
+    const sqlQuery = req.body.sql;
+    const ast = parser.astify(sqlQuery);
+    res.status(201).json({ ast });
+  } catch (error) {
+    console.error("Parsing Error: ", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // APIエンドポイント2: カラム名をハッシュ化し、マップを保存
@@ -62,7 +67,7 @@ app.post('/rebuild-sql', (req, res) => {
     const columnMap = new Map();
     db.all("SELECT original, hashed FROM column_map", [], (err, rows) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        throw err;
       }
 
       rows.forEach((row) => {
@@ -76,11 +81,16 @@ app.post('/rebuild-sql', (req, res) => {
       res.json({ query: rebuiltSql });
     });
   } catch (err) {
+    console.error("Rebuild Error: ", err);
     res.status(500).json({ error: err.message });
   }
 });
 
+module.exports = app;
+
 // サーバーの起動
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
