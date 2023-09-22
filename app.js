@@ -1,10 +1,12 @@
 const express = require('express');
 const sqlite3 = require('sqlite3');
 const { Parser } = require('node-sql-parser');
+const cors = require('cors');
 
 const { hashColumnNames } = require('./util');
 
 const app = express();
+app.use(cors());
 const port = 3000;
 
 // SQLiteデータベースをオープン
