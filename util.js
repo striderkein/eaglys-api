@@ -11,6 +11,26 @@ const hashColumnNames = (node) => {
   const columnMap = [];
   const recursiveHash = (node) => {
     if (node) {
+      // UPDATE の場合
+      if (node.type === 'update') {
+        for (const setClause of node.set) {
+          const originalColumnName = setClause.column; // setClause.column はカラム名
+          const hashedColumnName = hashString(originalColumnName).substring(0, 8); // too long, so truncate
+          setClause.column = hashedColumnName;
+          // マップに追加 `originalColumnName: hashedColumnName` の形式で
+          columnMap.push({ [originalColumnName]: hashedColumnName });
+        }
+        // for (const item of node.where) {
+        //   if (item.type === 'column_ref') {
+        //     const originalColumnName = item.column; // setClause.column はカラム名
+        //     const hashedColumnName = hashString(originalColumnName).substring(0, 8); // too long, so truncate
+        //     item.column = hashedColumnName;
+        //     // マップに追加 `originalColumnName: hashedColumnName` の形式で
+        //     columnMap.push({ [originalColumnName]: hashedColumnName });
+        //   }
+        // }
+      }
+      // UPDATE 以外のクエリの場合
       if (node.type === 'column_ref') {
         if (node.column) {
           const originalColumnName = node.column;
