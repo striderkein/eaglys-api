@@ -14,7 +14,15 @@ const hashColumnNames = (node) => {
     console.log(`isUpdate: ${isUpdate}`)
 
     if (node) {
-      // UPDATE の場合
+      if (node.type === 'insert') {
+        node.columns.map((column, index) => {
+          const originalColumnName = column;
+          const hashedColumnName = hashString(originalColumnName).substring(0, 8); // too long, so truncate
+          node.columns[index] = hashedColumnName;
+          columnMap.push({ [originalColumnName]: hashedColumnName });
+        })
+      }
+
       if (node.type === 'update') {
         for (const setClause of node.set) {
           const originalColumnName = setClause.column; // setClause.column はカラム名
@@ -32,7 +40,6 @@ const hashColumnNames = (node) => {
         }
       }
 
-      // UPDATE 以外のクエリの場合
       if (node.type === 'column_ref') {
         console.log(`update のときにも column_ref は見てるよ node: ${JSON.stringify(node)}`)
         if (node.column) {
