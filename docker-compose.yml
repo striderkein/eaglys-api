@@ -8,3 +8,8 @@ services:
       - "${EAGLYS_API_PORT}:3000"
     environment:
       - NODE_ENV=development
+    networks:
+      - eaglys
+networks:
+  eaglys:
+    driver: bridge
