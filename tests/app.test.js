@@ -113,6 +113,98 @@ describe('POST /modify-ast', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('ast');
   });
+
+  it('should hash column names in UPDATE query', async () => {
+    const ast = {
+      "type": "update",
+      "table": [
+        {
+          "db": null,
+          "table": "USERS",
+          "as": null
+        }
+      ],
+      "set": [
+        {
+          "column": "column1",
+          "value": {
+            "type": "column_ref",
+            "table": null,
+            "column": "value1"
+          },
+          "table": null
+        }
+      ],
+      "where": {
+        "type": "binary_expr",
+        "operator": "=",
+        "left": {
+          "type": "column_ref",
+          "table": null,
+          "column": "id"
+        },
+        "right": {
+          "type": "number",
+          "value": 1
+        }
+      },
+      "orderby": null,
+      "limit": null
+    };
+
+    const response = await request(app)
+      .post('/modify-ast')
+      .send({ ast });
+
+    expect(response.status).toBe(200);
+    expect(response.body.ast.set[0].column).not.toBe('column1');
+    expect(response.body.ast.set[0].value.column).toBe('value1');
+  });
+
+  it('should hash column names in SELECT query', async () => {
+    const ast = {
+      "type": "select",
+      "distinct": null,
+      "columns": [
+        {
+          "expr": {
+            "type": "column_ref",
+            "table": null,
+            "column": "column1"
+          },
+          "as": null
+        },
+        {
+          "expr": {
+            "type": "column_ref",
+            "table": null,
+            "column": "column2"
+          },
+          "as": null
+        }
+      ],
+      "from": [
+        {
+          "db": null,
+          "table": "USERS",
+          "as": null
+        }
+      ],
+      "where": null,
+      "groupby": null,
+      "having": null,
+      "orderby": null,
+      "limit": null
+    };
+
+    const response = await request(app)
+      .post('/modify-ast')
+      .send({ ast });
+
+    expect(response.status).toBe(200);
+    expect(response.body.ast.columns[0].expr.column).not.toBe('column1');
+    expect(response.body.ast.columns[1].expr.column).not.toBe('column2');
+  });
 });
 
 // エンドポイント3: 変更されたASTからSQLを再構築
